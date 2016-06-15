@@ -44,6 +44,14 @@ boolean isDiffColor(color pxlA, color pxlB) {
   return ((abs(red(pxlA)-red(pxlB)) + abs(green(pxlA)-green(pxlB)) + abs(blue(pxlA)-blue(pxlB))) >= 100);
 }
 
+boolean isEdge(color pxl, color[] pxlAdj) {
+  boolean result = false;
+  for(int i = 0; i < pxlAdj.length && !result; i++) {
+    result = isDiffColor(pxl, pxlAdj[i]);
+  }
+  return result;
+}
+
 void draw() {
   image(bkimg, 0, 0);
   loadPixels();
