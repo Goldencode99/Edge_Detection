@@ -40,6 +40,10 @@ int[][] getAdjacents(int x, int y) {
   return adj;
 }
 
+boolean isDiffColor(color pxlA, color pxlB) {
+  return ((abs(red(pxlA)-red(pxlB)) + abs(green(pxlA)-green(pxlB)) + abs(blue(pxlA)-blue(pxlB))) >= 100);
+}
+
 void draw() {
   image(bkimg, 0, 0);
   loadPixels();
