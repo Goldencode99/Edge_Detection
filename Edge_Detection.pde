@@ -52,6 +52,12 @@ boolean isEdge(color pxl, color[] pxlAdj) {
   return result;
 }
 
+color[] adjToColors(int[][] adj) {
+  color[] adjColors = new color[adj.length];
+  for(int i = 0; i < adj.length; i++) {adjColors[i]=pixels[adj[i][1] * width + adj[i][0]];}
+  return adjColors;
+}
+
 void draw() {
   image(bkimg, 0, 0);
   loadPixels();
