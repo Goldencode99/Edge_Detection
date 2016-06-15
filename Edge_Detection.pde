@@ -17,6 +17,30 @@ void imageSelected(File selection) {
   }
 }
 
+int[][] getAdjacents(int x, int y) {
+  int numAdj = 9;
+  if(x==0 && y==0 || x==width-1 && y==0 || x==0 && y==height-1 || x==width-1 && y==height-1) {numAdj-=5;}
+  else if(x==0 || y==0) {numAdj-=3;}
+  else if(x==width-1 || y==height-1) {numAdj-=3;}
+  
+  int[][] adj = new int[numAdj][2];
+  int n = 0;
+  for(int xi = -1; xi <= 1; xi++) {
+    for(int yi = -1; yi <= 1; yi++) {
+      int adjX = x+xi;
+      int adjY = y+yi;
+      if(adjX>=0 && adjX<width && adjY>=0 && adjY<height) {
+        adj[n][0] = adjX;
+        adj[n][1] = adjY;
+        n++;
+      }
+    }
+  }
+  
+  return adj;
+}
+
 void draw() {
   image(bkimg, 0, 0);
+  loadPixels();
 }
