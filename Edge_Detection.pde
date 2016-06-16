@@ -1,4 +1,10 @@
 PImage bkimg;
+boolean[][] edgeMap;
+int xChk;
+int yChk;
+
+color white = color(255);
+color black = color(0);
 
 void setup() {
   size(300, 300, P2D);
@@ -6,6 +12,9 @@ void setup() {
   selectInput("Select an image to process:", "imageSelected"); //sets bkgnd in callback
   while(bkimg == null) {delay(100);} //wait for user to select an image
   surface.setSize(bkimg.width, bkimg.height);
+  xChk = 0;
+  yChk = 0;
+  edgeMap = new boolean[width][height];
 }
 
 void imageSelected(File selection) {
@@ -40,8 +49,14 @@ int[][] getAdjacents(int x, int y) {
   return adj;
 }
 
+color[] adjToColors(int[][] adj) {
+  color[] adjColors = new color[adj.length];
+  for(int i = 0; i < adj.length; i++) {adjColors[i]=pixels[adj[i][1] * width + adj[i][0]];}
+  return adjColors;
+}
+
 boolean isDiffColor(color pxlA, color pxlB) {
-  return ((abs(red(pxlA)-red(pxlB)) + abs(green(pxlA)-green(pxlB)) + abs(blue(pxlA)-blue(pxlB))) >= 100);
+  return ((abs(red(pxlA)-red(pxlB)) + abs(green(pxlA)-green(pxlB)) + abs(blue(pxlA)-blue(pxlB))) >= 255);
 }
 
 boolean isEdge(color pxl, color[] pxlAdj) {
@@ -52,13 +67,27 @@ boolean isEdge(color pxl, color[] pxlAdj) {
   return result;
 }
 
-color[] adjToColors(int[][] adj) {
-  color[] adjColors = new color[adj.length];
-  for(int i = 0; i < adj.length; i++) {adjColors[i]=pixels[adj[i][1] * width + adj[i][0]];}
-  return adjColors;
-}
-
 void draw() {
-  image(bkimg, 0, 0);
-  loadPixels();
+  if(frameCount < 10){
+    image(bkimg, 0, 0);
+    loadPixels();
+  } else if (xChk < width) {
+    edgeMap[xChk][yChk] = isEdge(pixels[yChk*width+xChk], adjToColors(getAdjacents(xChk,yChk)));
+    println(str(xChk*height+yChk+1) + "/" + str(width*height));
+    yChk++;
+    if(yChk==height) {
+      xChk++;
+      yChk = 0;
+    }
+  } else if (xChk == width) {
+    for(int i = 0; i < edgeMap.length; i++) {
+      for(int j = 0; j < edgeMap[0].length; j++) {
+        if(edgeMap[i][j]) {
+          set(i, j, white);
+        } else {
+          set(i, j, black);
+        }
+      }
+    }
+  }
 }
