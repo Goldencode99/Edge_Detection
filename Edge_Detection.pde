@@ -1,7 +1,6 @@
 PImage bkimg;
-boolean[][] edgeMap;
-int xChk;
-int yChk;
+boolean[] edgeMap;
+boolean imgLoaded;
 
 color white = color(255);
 color black = color(0);
@@ -9,12 +8,14 @@ color black = color(0);
 void setup() {
   size(300, 300, P2D);
   surface.setResizable(true);
-  selectInput("Select an image to process:", "imageSelected"); //sets bkgnd in callback
+  selectInput("Select an image to process:", "imageSelected"); //sets bkimg in callback
   while(bkimg == null) {delay(100);} //wait for user to select an image
   surface.setSize(bkimg.width, bkimg.height);
-  xChk = 0;
-  yChk = 0;
-  edgeMap = new boolean[width][height];
+  edgeMap = new boolean[width * height];
+  for(int i = 0; i < edgeMap.length; i++) {
+    edgeMap[i] = false;
+  }
+  noLoop();
 }
 
 void imageSelected(File selection) {
@@ -68,26 +69,20 @@ boolean isEdge(color pxl, color[] pxlAdj) {
 }
 
 void draw() {
-  if(frameCount < 10){
-    image(bkimg, 0, 0);
-    loadPixels();
-  } else if (xChk < width) {
-    edgeMap[xChk][yChk] = isEdge(pixels[yChk*width+xChk], adjToColors(getAdjacents(xChk,yChk)));
-    println(str(xChk*height+yChk+1) + "/" + str(width*height));
-    yChk++;
-    if(yChk==height) {
-      xChk++;
-      yChk = 0;
-    }
-  } else if (xChk == width) {
-    for(int i = 0; i < edgeMap.length; i++) {
-      for(int j = 0; j < edgeMap[0].length; j++) {
-        if(edgeMap[i][j]) {
-          set(i, j, white);
-        } else {
-          set(i, j, black);
-        }
+  image(bkimg, 0, 0);
+  loadPixels();
+  for(int i = 0; i < edgeMap.length - 1; i++) {
+    if(!edgeMap[i]) {
+      if(isDiffColor(pixels[i], pixels[i+1])) {
+        edgeMap[i] = true;
+        edgeMap[i+1] = true;
       }
     }
+    println(str(i+2) + "/" + str(pixels.length));
   }
+  for(int i = 0; i < edgeMap.length; i++) {
+    if(edgeMap[i]) {pixels[i] = white;}
+    else {pixels[i] = black;}
+  }
+  updatePixels();
 }
