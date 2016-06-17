@@ -31,9 +31,13 @@ void draw() {
   
   boolean[] edgeMapH = new boolean[width * height];
   boolean[] edgeMapV = new boolean[width * height];
+  boolean[] edgeMapDR = new boolean[width * height];
+  boolean[] edgeMapDL = new boolean[width * height];
   for(int i = 0; i < edgeMapH.length; i++) {
     edgeMapH[i] = false;
     edgeMapV[i] = false;
+    edgeMapDR[i] = false;
+    edgeMapDL[i] = false;
   }
   
   //horizontal edge check
@@ -56,8 +60,33 @@ void draw() {
     }
   }
   
+  //diagonal down-right edge check
+  for(int i = 0; i < edgeMapDR.length - width; i++) {
+    if(!edgeMapDR[i]) {
+      if(isDiffColor(pixels[i], pixels[i+width+1])) {
+        edgeMapDR[i] = true;
+        edgeMapDR[i+width+1] = true;
+      }
+    }
+    if(i % width == width - 2) {
+        i++;
+    }
+  }
+  
+  //diagonal down-left edge check
+  for(int i = 0; i < edgeMapDL.length-width; i++) {
+    if(i % width == 0) {
+      i++;
+    } else if(!edgeMapDL[i]) {
+      if(isDiffColor(pixels[i], pixels[i+width-1])) {
+        edgeMapDL[i] = true;
+        edgeMapDL[i+width-1] = true;
+      }
+    }
+  }
+  
   for(int i = 0; i < edgeMapH.length; i++) {
-    if(edgeMapH[i] || edgeMapV[i]) {pixels[i] = white;}
+    if(edgeMapH[i] || edgeMapV[i] || edgeMapDR[i] || edgeMapDL[i]) {pixels[i] = white;}
     else {pixels[i] = black;}
   }
   updatePixels();
