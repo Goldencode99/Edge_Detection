@@ -1,6 +1,4 @@
 PImage bkimg;
-boolean[] edgeMap;
-boolean imgLoaded;
 
 color white = color(255);
 color black = color(0);
@@ -11,10 +9,6 @@ void setup() {
   selectInput("Select an image to process:", "imageSelected"); //sets bkimg in callback
   while(bkimg == null) {delay(100);} //wait for user to select an image
   surface.setSize(bkimg.width, bkimg.height);
-  edgeMap = new boolean[width * height];
-  for(int i = 0; i < edgeMap.length; i++) {
-    edgeMap[i] = false;
-  }
   noLoop();
 }
 
@@ -27,61 +21,43 @@ void imageSelected(File selection) {
   }
 }
 
-int[][] getAdjacents(int x, int y) {
-  int numAdj = 9;
-  if(x==0 && y==0 || x==width-1 && y==0 || x==0 && y==height-1 || x==width-1 && y==height-1) {numAdj-=5;}
-  else if(x==0 || y==0) {numAdj-=3;}
-  else if(x==width-1 || y==height-1) {numAdj-=3;}
-  
-  int[][] adj = new int[numAdj][2];
-  int n = 0;
-  for(int xi = -1; xi <= 1; xi++) {
-    for(int yi = -1; yi <= 1; yi++) {
-      int adjX = x+xi;
-      int adjY = y+yi;
-      if(adjX>=0 && adjX<width && adjY>=0 && adjY<height) {
-        adj[n][0] = adjX;
-        adj[n][1] = adjY;
-        n++;
-      }
-    }
-  }
-  
-  return adj;
-}
-
-color[] adjToColors(int[][] adj) {
-  color[] adjColors = new color[adj.length];
-  for(int i = 0; i < adj.length; i++) {adjColors[i]=pixels[adj[i][1] * width + adj[i][0]];}
-  return adjColors;
-}
-
 boolean isDiffColor(color pxlA, color pxlB) {
   return ((abs(red(pxlA)-red(pxlB)) + abs(green(pxlA)-green(pxlB)) + abs(blue(pxlA)-blue(pxlB))) >= 255);
-}
-
-boolean isEdge(color pxl, color[] pxlAdj) {
-  boolean result = false;
-  for(int i = 0; i < pxlAdj.length && !result; i++) {
-    result = isDiffColor(pxl, pxlAdj[i]);
-  }
-  return result;
 }
 
 void draw() {
   image(bkimg, 0, 0);
   loadPixels();
-  for(int i = 0; i < edgeMap.length - 1; i++) {
-    if(!edgeMap[i]) {
+  
+  boolean[] edgeMapH = new boolean[width * height];
+  boolean[] edgeMapV = new boolean[width * height];
+  for(int i = 0; i < edgeMapH.length; i++) {
+    edgeMapH[i] = false;
+    edgeMapV[i] = false;
+  }
+  
+  //horizontal edge check
+  for(int i = 0; i < edgeMapH.length - 1; i++) {
+    if(!edgeMapH[i]) {
       if(isDiffColor(pixels[i], pixels[i+1])) {
-        edgeMap[i] = true;
-        edgeMap[i+1] = true;
+        edgeMapH[i] = true;
+        edgeMapH[i+1] = true;
       }
     }
-    println(str(i+2) + "/" + str(pixels.length));
   }
-  for(int i = 0; i < edgeMap.length; i++) {
-    if(edgeMap[i]) {pixels[i] = white;}
+  
+  //vertical edge check
+  for(int i = 0; i < edgeMapV.length - width; i++) {
+    if(!edgeMapV[i]) {
+      if(isDiffColor(pixels[i], pixels[i+width])) {
+        edgeMapV[i] = true;
+        edgeMapV[i+width] = true;
+      }
+    }
+  }
+  
+  for(int i = 0; i < edgeMapH.length; i++) {
+    if(edgeMapH[i] || edgeMapV[i]) {pixels[i] = white;}
     else {pixels[i] = black;}
   }
   updatePixels();
